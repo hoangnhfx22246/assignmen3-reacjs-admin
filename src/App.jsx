@@ -7,30 +7,33 @@ import ProtectedRoute from "./Components/ProtectedRouter";
 import LoginPage from "./Pages/LoginPage";
 import PublicRouter from "./Components/PublicRouter";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: (
-      <ProtectedRoute>
-        <Root />
-      </ProtectedRoute>
-    ),
-    children: [
-      {
-        path: "products",
-        element: <ProductsPage />,
-      },
-    ],
-  },
-  {
-    path: "/login",
-    element: (
-      <PublicRouter>
-        <LoginPage />
-      </PublicRouter>
-    ),
-  },
-]);
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: (
+        <ProtectedRoute>
+          <Root />
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          path: "products",
+          element: <ProductsPage />,
+        },
+      ],
+    },
+    {
+      path: "/login",
+      element: (
+        <PublicRouter>
+          <LoginPage />
+        </PublicRouter>
+      ),
+    },
+  ],
+  { basename: "/assignmen3-reacjs-admin/" }
+);
 
 function App() {
   return (
