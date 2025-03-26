@@ -23,6 +23,9 @@ const ProductTable = ({ products, onEdit, onDelete }) => {
               Category
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Quantity
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Edit
             </th>
           </tr>
@@ -45,13 +48,21 @@ const ProductTable = ({ products, onEdit, onDelete }) => {
                 <div className="h-10 w-10 flex-shrink-0">
                   <img
                     className="h-10 w-10 object-cover"
-                    src={product.img1}
+                    src={
+                      import.meta.env.VITE_URL_BACKEND + "/" + product.images[0]
+                    }
                     alt=""
                   />
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">{product.category}</div>
+              </td>
+
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">
+                  {Number(product.quantity).toLocaleString()}
+                </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button

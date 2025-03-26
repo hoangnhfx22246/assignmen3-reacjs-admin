@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { FiPlus, FiSearch } from "react-icons/fi";
-import ProductTable from "../Components/Product/ProductTable";
-import AddProductModal from "../Components/Product/AddProductModal";
-import EditProductModal from "../Components/Product/EditProductModal";
-import DeleteConfirmationModal from "../Components/Product/DeleteConfirmationModal";
-import { productApi } from "../api/products";
+import ProductTable from "../features/Product/ProductTable";
+import AddProductModal from "../features/Product/AddProductModal";
+import EditProductModal from "../features/Product/EditProductModal";
+import DeleteConfirmationModal from "../features/Product/DeleteConfirmationModal";
+import { deleteProduct, productApi } from "../api/products";
 import { useEffect } from "react";
 
 const ProductsPage = () => {
@@ -47,20 +47,21 @@ const ProductsPage = () => {
   });
 
   const handleAddProduct = (newProduct) => {
-    setProducts([...products, { ...newProduct, id: products.length + 1 }]);
+    setProducts([{ ...newProduct, id: products.length + 1 }, ...products]);
     setIsAddModalOpen(false);
   };
 
   const handleEditProduct = (updatedProduct) => {
     setProducts(
-      products.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+      products.map((p) => (p._id === updatedProduct._id ? updatedProduct : p))
     );
     setIsEditModalOpen(false);
     setSelectedProduct(null);
   };
 
-  const handleDeleteProduct = (productId) => {
-    setProducts(products.filter((p) => p.id !== productId));
+  const handleDeleteProduct = async (productId) => {
+    await deleteProduct(productId);
+    setProducts(products.filter((p) => p._id !== productId));
     setIsDeleteModalOpen(false);
     setSelectedProduct(null);
   };
@@ -148,7 +149,7 @@ const ProductsPage = () => {
             setIsDeleteModalOpen(false);
             setSelectedProduct(null);
           }}
-          onDelete={() => handleDeleteProduct(selectedProduct.id)}
+          onDelete={() => handleDeleteProduct(selectedProduct._id)}
           productName={selectedProduct.name}
         />
       )}

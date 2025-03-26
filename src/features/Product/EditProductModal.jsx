@@ -1,35 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { updateProduct } from "../../api/products";
 
-const AddProductModal = ({ isOpen, onClose, onAdd, categories }) => {
+const EditProductModal = ({ isOpen, onClose, onEdit, product, categories }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    img1: "",
-    img2: "",
-    img3: "",
-    img4: "",
-    price: "",
-    long_desc: "",
-    short_desc: "",
+    name: product.name,
+    category: product.category,
+    images: product.images,
+    price: product.price,
+    quantity: product.quantity || 0,
+    long_desc: product.long_desc,
+    short_desc: product.short_desc,
   });
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [error, setError] = useState(""); // State to store validation errors
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    // Validate file count
+    if (files.length > 5) {
+      setError("You can upload a maximum of 5 images.");
+      return;
+    }
+
+    setError(""); // Clear any previous errors
+    setSelectedFiles(files);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onAdd({
-      ...formData,
-      price: Number(formData.price),
+
+    // Validate maximum file count
+    if (selectedFiles.length > 5) {
+      setError("You can upload a maximum of 5 images.");
+      return;
+    }
+
+    // Tạo FormData để gửi dữ liệu và file
+    const formDataForUpload = new FormData();
+    formDataForUpload.append("name", formData.name);
+    formDataForUpload.append("category", formData.category);
+    formDataForUpload.append("price", Number(formData.price)); // Chuyển đổi giá trị price sang số
+    formDataForUpload.append("quantity", Number(formData.quantity)); // Chuyển đổi giá trị quantity sang số
+    formDataForUpload.append("long_desc", formData.long_desc);
+    formDataForUpload.append("short_desc", formData.short_desc);
+
+    selectedFiles.forEach((file) => {
+      formDataForUpload.append("images", file); // Thêm từng file vào FormData
     });
-    setFormData({
-      name: "",
-      category: "",
-      img1: "",
-      img2: "",
-      img3: "",
-      img4: "",
-      price: "",
-      long_desc: "",
-      short_desc: "",
-    });
+
+    // Gọi API để tạo sản phẩm
+    console.log(formDataForUpload);
+
+    const updatedProduct = await updateProduct(product._id, formDataForUpload);
+    alert("Product update successfully!");
+    onEdit(updatedProduct); // Gọi callback để cập nhật danh sách sản phẩm
+    onClose(); // Đóng modal
   };
 
   if (!isOpen) return null;
@@ -39,7 +65,7 @@ const AddProductModal = ({ isOpen, onClose, onAdd, categories }) => {
       <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div className="mt-3">
           <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">
-            Add New Product
+            Update Product
           </h3>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
@@ -78,17 +104,15 @@ const AddProductModal = ({ isOpen, onClose, onAdd, categories }) => {
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Img1
+                Images
               </label>
               <input
-                type="text"
+                type="file"
+                multiple
+                onChange={handleFileChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                value={formData.img1}
-                onChange={(e) =>
-                  setFormData({ ...formData, img1: e.target.value })
-                }
-                required
               />
+              {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -133,6 +157,23 @@ const AddProductModal = ({ isOpen, onClose, onAdd, categories }) => {
                 required
               />
             </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Quantity
+              </label>
+              <input
+                type="number"
+                min={0}
+                max={1000}
+                step="1"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                value={formData.quantity}
+                onChange={(e) =>
+                  setFormData({ ...formData, quantity: e.target.value })
+                }
+                required
+              />
+            </div>
             <div className="flex justify-end gap-4">
               <button
                 type="button"
@@ -145,7 +186,7 @@ const AddProductModal = ({ isOpen, onClose, onAdd, categories }) => {
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
-                Add Product
+                Update Product
               </button>
             </div>
           </form>
@@ -155,4 +196,4 @@ const AddProductModal = ({ isOpen, onClose, onAdd, categories }) => {
   );
 };
 
-export default AddProductModal;
+export default EditProductModal;
